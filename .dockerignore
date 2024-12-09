@@ -1,0 +1,9 @@
+#these files/folders will be ignored by docker and they will not be copied inside the container file system
+node_modules/
+Docker-commands.txt
+test.txt
+.git/
+.dockerignore
+.env
+docker-compose*
+Dockerfile

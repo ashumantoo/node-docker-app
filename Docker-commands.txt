@@ -1,0 +1,99 @@
+1. To Build the docker image from Docker file:
+   a.) Building image from the same directory where Dockerfile exits
+       docker build . <-- (.) since Dockerfile exist in the same working directory
+
+   b.) Building image from differnt file name of with differnt location
+       docker build -f <customdockerfilename>
+
+   c.) Build docker image with a specific name
+       docker build -t <customDockerImageName> <dockerfilePath>
+       eg.- docker build -t node-app-image .
+
+
+2. List all the docker image created on the machine
+   docker image ls
+
+3. Delete a docker image from the machine using image id
+   docker image rm <imageId or imageName>
+   eg. - docker image rm node-app-image
+
+4. Run docker image inside a container by docker imagename or imageid
+   docker run -d --name <customcontainername> <imagename>
+   eg.- docker run -d --name node-app node-app-image
+   --name --> to give custom name for the container otherwise a uniueq id will be created (node-app)
+   -d     --> to run created container in detached mode
+
+5. Delete a docker container from the machine using containerid or containername
+   docker rm <imageId or imageName> -f
+   eg.- docker rm node-app -f
+   -f --> force flag will force to delete a running container
+
+6. Run docker image inside a container by docker imagename or imageid and allow trafic from outside world
+   docker run -p <hostport>:<containerport> -d --name <customcontainername> <imagename>
+   eg.- docker run -p 3000:3000 -d --name node-app node-app-image
+   --name --> to give custom name for the container otherwise a uniueq id will be created (node-app)
+   -d     --> to run created container in detached mode
+   -p     --> to define the port on which the hostmachin/container accepting the trafic and redirecting to the container
+
+7. To check the file system of a running container inside the container
+   docker exec -it <containername or containerid> bash
+   -it --> flat for interactive mode
+   eg.- docker exec -it node-app bash
+
+8. To share any changes made inside of a file to the host machine with the container we are going to user VOLUMS
+   docker run -v <hostcurrentworkingdirectorypath>:<containercurrentworkingdirectory> -p <hostport>:<containerport> -d --name <customcontainername> <imagename>
+   eg.- docker run -v $(pwd):/app -p 3000:3000 -d --name node-app node-app-image   
+
+9. To Restrict accidentally deleting the node_modules folder from container if node_modules folder got delete from host machine, create another volume
+   docker run -v $(pwd):/app -v /app/node_modules -p 3000:3000 -d --name node-app node-app-image
+
+10. Creating a read only volume mount since volume is two way road, changes done in container file system also get reflceted into the host machine file system   
+    docker run -v $(pwd):/app:ro -v /app/node_modules -p 3000:3000 -d --name node-app node-app-image
+    - ro --> read only
+
+11. To define container env using command - PORT 4000 is the container PORT, host will still listen on port 3000
+    docker run -v $(pwd):/app:ro -v /app/node_modules --env PORT=4000 -p 3000:4000 -d --name node-app node-app-image
+
+12. Defining container env variable from .env file
+    docker run -v $(pwd):/app:ro -v /app/node_modules --env-file ./.env -p 3000:4000 -d --name node-app node-app-image
+
+13. Check all running container
+    docker ps
+    docker compose ps
+
+14. docker compose down -v <-- remove the container alogn with the created volumes    
+
+15. Run docker compose using multiple yml files
+    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+    -d --> will run in detached mode
+
+16. Entering into the mongo container shell
+    mongosh -u "<root_username>" -p "<root_user_password>"
+
+17. List all created volumes
+    docker volume ls 
+    docker volume --help <-- to check all the command related to volume   
+18. Remove all unused local volumes
+    docker volume prune
+
+19.**** To Get all the meta information about a container - id,name,Host config,container ip address, Network settings/config etc
+    docker inspect <container_name>
+    eg.- docker inspect node_docker-node-app-1
+         docker inspect node_docker-mongo-1 
+
+20. List all the Network created with docker
+    docker network ls 
+
+21. Inspect a specific network created by docker
+    docker network inspect <network_name>
+    eg.- docker network inspect node_docker_default
+
+22. To check all the logs related to a container
+    docker logs <container_name>
+    eg.- docker logs node_docker-node-app-1      
+
+23. Spining up more than once container at a time
+    docker compose -f <filename> -f<filename> up -d --scale <servicename>=<numberofinstance>
+    eg.- docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --scale node-app=2
+
+*** Bind mount we only use in developmnet mode, not required in production   

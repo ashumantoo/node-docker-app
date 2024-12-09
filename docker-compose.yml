@@ -1,0 +1,29 @@
+services:
+  nginx:
+    image: nginx
+  node-app:
+    build: .
+    #Port for node-app service is not required now since all the request to node-app is going to be handled by nginx and a seperate port has been defined for nginx container in dev and prod yml file
+    # ports:
+    #   - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      #since our node-app app is depends on mongo db so docker will run mongo service first and then node-app
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-db:/data/db #nameed volume ('mongo-db' is the name of the volume)
+
+  redis:
+    image: redis
+
+#Declaring named volumes, required to declared otherwise while runing the image we will get error
+volumes:
+  mongo-db:

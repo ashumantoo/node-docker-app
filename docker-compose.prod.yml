@@ -1,0 +1,28 @@
+services:
+  nginx:
+    ports: -"80:80"
+  node-app:
+    deploy: #container orchestration in prod to minimize the service downtime - Docker Swarm
+      replicas: 8 #spin 8 node-app container
+      restart_policy:
+        condition: any #restart the container if any error occure
+      update_config:
+        parallelism: 2 #update 2 docker container/services at a time, update need to happen once a new image available due to newly changes made to the code base
+        delay: 15s
+    build:
+      context: .
+      args:
+        - NODE_ENV=production
+    #All there environment variables will be set in ubuntu machine where the server is running, it can be Heroku ,Digital Ocean, AWS EC2 etc 
+    #and then docker will pull these env from machine environment   
+    environment:
+      - NODE_ENV=production
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - REDIS_SESSION_SECRET=${REDIS_SESSION_SECRET}
+    command: node index.js
+
+  mongo:
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
